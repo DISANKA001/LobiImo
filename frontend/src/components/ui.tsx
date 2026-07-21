@@ -50,13 +50,13 @@ export function PrimaryButton({
           backgroundColor: bg,
           borderColor,
           borderWidth: variant === "outline" ? 1.5 : 0,
-          paddingVertical: spacing.md + 2,
+          paddingVertical: 12,
           paddingHorizontal: spacing.lg,
           borderRadius: radius.md,
           alignItems: "center",
           justifyContent: "center",
           opacity: disabled ? 0.5 : 1,
-          minHeight: 48,
+          minHeight: 44,
         },
         style,
       ]}
@@ -67,8 +67,8 @@ export function PrimaryButton({
         <Text
           style={{
             color: fg,
-            fontSize: typography.lg,
-            fontWeight: "600",
+            fontSize: typography.base,
+            fontWeight: "700",
           }}
         >
           {title}
@@ -161,7 +161,7 @@ export function Badge({
         alignSelf: "flex-start",
       }}
     >
-      <Text style={{ color: fg, fontSize: typography.sm, fontWeight: "600" }}>
+      <Text style={{ color: fg, fontSize: typography.xs, fontWeight: "700" }}>
         {label}
       </Text>
     </View>
@@ -317,37 +317,40 @@ export function SectionTitle({
 /* ---------------------------------------------------------------- styles */
 const styles = StyleSheet.create({
   inputLabel: {
-    fontSize: typography.sm,
+    fontSize: typography.xs,
     color: colors.onSurfaceSecondary,
-    marginBottom: 6,
-    fontWeight: "600",
+    marginBottom: 4,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
   },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
-    paddingVertical: 12,
-    fontSize: typography.lg,
+    paddingVertical: 10,
+    fontSize: typography.base,
     color: colors.onSurface,
     backgroundColor: colors.surface,
+    minHeight: 42,
   },
   inputError: {
     color: colors.error,
-    fontSize: typography.sm,
+    fontSize: typography.xs,
     marginTop: 4,
   },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     overflow: "hidden",
     borderWidth: 1,
     borderColor: colors.border,
   },
   cardImageWrap: {
     width: "100%",
-    aspectRatio: 4 / 3,
+    aspectRatio: 16 / 10,
     position: "relative",
   },
   cardImage: {
@@ -357,29 +360,29 @@ const styles = StyleSheet.create({
   },
   cardBadge: {
     position: "absolute",
-    top: 12,
-    left: 12,
+    top: 10,
+    left: 10,
   },
   cardPrice: {
-    fontSize: typography.xl,
-    fontWeight: "700",
+    fontSize: typography.lg,
+    fontWeight: "800",
     color: colors.brandPrimary,
     marginBottom: 2,
   },
   cardTitle: {
-    fontSize: typography.lg,
-    fontWeight: "600",
+    fontSize: typography.base,
+    fontWeight: "700",
     color: colors.onSurface,
   },
   cardLocation: {
-    fontSize: typography.base,
+    fontSize: typography.sm,
     color: colors.onSurfaceSecondary,
-    marginTop: 2,
+    marginTop: 1,
   },
   cardSpecs: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
     gap: spacing.sm,
   },
   dot: {
@@ -394,26 +397,26 @@ const styles = StyleSheet.create({
     padding: spacing.xxl,
   },
   emptyDot: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: colors.brandTertiary,
     marginBottom: spacing.md,
   },
   emptyTitle: {
-    fontSize: typography.lg,
+    fontSize: typography.base,
     fontWeight: "700",
     color: colors.onSurface,
     textAlign: "center",
   },
   emptySubtitle: {
-    fontSize: typography.base,
+    fontSize: typography.sm,
     color: colors.onSurfaceSecondary,
     marginTop: 4,
     textAlign: "center",
   },
   sectionTitle: {
-    fontSize: typography.xl,
+    fontSize: typography.lg,
     fontWeight: "700",
     color: colors.onSurface,
   },

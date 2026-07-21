@@ -41,7 +41,7 @@ export default function RegisterScreen() {
       });
       toast.success(`Bienvenue sur LobiImo, ${user.name} !`);
       if (user.role === "owner") router.replace("/(owner)/dashboard");
-      else router.replace("/(client)/home");
+      else router.replace("/(main)/home");
     } catch (e: any) {
       toast.error(e?.message || "Inscription impossible");
     } finally {
@@ -172,14 +172,14 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: typography.display,
+    fontSize: typography.xxl,
     fontWeight: "800",
     color: colors.onSurface,
   },
   subtitle: {
-    fontSize: typography.lg,
+    fontSize: typography.base,
     color: colors.onSurfaceSecondary,
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
   },
   segment: {
     flexDirection: "row",
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   segItem: {
     flex: 1,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.md - 2,
     paddingHorizontal: spacing.sm,
     borderRadius: radius.md,
     alignItems: "flex-start",
@@ -202,12 +202,12 @@ const styles = StyleSheet.create({
   segText: {
     color: colors.onSurface,
     fontWeight: "700",
-    fontSize: typography.base,
+    fontSize: typography.sm,
   },
   segTextActive: { color: "#fff" },
   segSub: {
     color: colors.onSurfaceSecondary,
-    fontSize: typography.sm,
+    fontSize: typography.xs,
     marginTop: 2,
   },
 });

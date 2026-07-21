@@ -364,6 +364,52 @@ def _property_out(doc: dict) -> PropertyOut:
     return PropertyOut(**{k: v for k, v in doc.items() if k != "_id"})
 
 
+@api.get("/properties/public", response_model=List[PropertyOut])
+async def list_properties_public(
+    type: Optional[TransactionType] = None,
+    commune: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    bedrooms: Optional[int] = None,
+    q: Optional[str] = None,
+):
+    """Anonymous-safe browse — only published properties."""
+    query: dict = {"status": "published"}
+    if type:
+        query["type"] = type
+    if commune:
+        query["commune"] = {"$regex": f"^{commune}$", "$options": "i"}
+    if bedrooms is not None:
+        query["bedrooms"] = {"$gte": bedrooms}
+    if min_price is not None or max_price is not None:
+        price_q: dict = {}
+        if min_price is not None:
+            price_q["$gte"] = min_price
+        if max_price is not None:
+            price_q["$lte"] = max_price
+        query["price"] = price_q
+    if q:
+        query["$or"] = [
+            {"title": {"$regex": q, "$options": "i"}},
+            {"description": {"$regex": q, "$options": "i"}},
+            {"quartier": {"$regex": q, "$options": "i"}},
+            {"commune": {"$regex": q, "$options": "i"}},
+        ]
+    docs = await properties_col.find(query, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return [_property_out(d) for d in docs]
+
+
+@api.get("/properties/public/{property_id}", response_model=PropertyOut)
+async def get_property_public(property_id: str):
+    """Anonymous-safe detail — only if published."""
+    doc = await properties_col.find_one(
+        {"id": property_id, "status": "published"}, {"_id": 0}
+    )
+    if not doc:
+        raise HTTPException(404, "Propriété introuvable")
+    return _property_out(doc)
+
+
 @api.get("/properties", response_model=List[PropertyOut])
 async def list_properties(
     type: Optional[TransactionType] = None,

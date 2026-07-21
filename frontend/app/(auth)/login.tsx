@@ -27,7 +27,7 @@ export default function LoginScreen() {
       toast.success(`Bienvenue, ${user.name}`);
       if (user.role === "admin") router.replace("/(admin)/dashboard");
       else if (user.role === "owner") router.replace("/(owner)/dashboard");
-      else router.replace("/(client)/home");
+      else router.replace("/(main)/home");
     } catch (e: any) {
       toast.error(e?.message || "Connexion impossible");
     } finally {
@@ -97,15 +97,15 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: typography.display,
+    fontSize: typography.xxl,
     fontWeight: "800",
     color: colors.onSurface,
   },
   subtitle: {
-    fontSize: typography.lg,
+    fontSize: typography.base,
     color: colors.onSurfaceSecondary,
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
   },
   linkWrap: { marginTop: spacing.lg, alignItems: "center" },
-  linkText: { color: colors.onSurfaceSecondary, fontSize: typography.base },
+  linkText: { color: colors.onSurfaceSecondary, fontSize: typography.sm },
 });

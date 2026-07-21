@@ -1,34 +1,39 @@
 /**
- * LobiImo design tokens - synced with /app/design_guidelines.json
- * "iOS-Native Clean" — white + blue palette (Kinshasa real estate marketplace).
+ * Lobilmo design tokens — Navy blue + White palette.
+ * Typography scaled DOWN for compact mobile screens.
  */
 export const colors = {
   surface: "#FFFFFF",
-  onSurface: "#111827",
-  surfaceSecondary: "#F4F7F9",
-  onSurfaceSecondary: "#374151",
-  surfaceTertiary: "#E8EEF2",
-  onSurfaceTertiary: "#4B5563",
-  surfaceInverse: "#111827",
+  onSurface: "#0F172A",
+  surfaceSecondary: "#F4F6FA",
+  onSurfaceSecondary: "#3B4A63",
+  surfaceTertiary: "#E5EBF3",
+  onSurfaceTertiary: "#4B5B75",
+  surfaceInverse: "#0B2447",
   onSurfaceInverse: "#FFFFFF",
 
-  brand: "#0A4D68",
-  brandPrimary: "#0A4D68",
+  // Navy blue primary
+  brand: "#0B2447",
+  brandPrimary: "#0B2447",
   onBrandPrimary: "#FFFFFF",
-  brandSecondary: "#088395",
+  brandSecondary: "#19376D",
   onBrandSecondary: "#FFFFFF",
-  brandTertiary: "#E0F2FE",
-  onBrandTertiary: "#0A4D68",
+  brandTertiary: "#E3ECFA",
+  onBrandTertiary: "#0B2447",
+
+  // Gold accent to echo the logo
+  accent: "#C9A24B",
+  onAccent: "#FFFFFF",
 
   success: "#10B981",
   warning: "#F59E0B",
   error: "#EF4444",
-  info: "#3B82F6",
+  info: "#2563EB",
 
-  border: "#E5E7EB",
-  borderStrong: "#D1D5DB",
-  divider: "#F3F4F6",
-  muted: "#6B7280",
+  border: "#E2E7F0",
+  borderStrong: "#C7D0DE",
+  divider: "#EEF1F6",
+  muted: "#6B7891",
 };
 
 export const spacing = {
@@ -36,33 +41,38 @@ export const spacing = {
   sm: 8,
   md: 12,
   lg: 16,
-  xl: 24,
-  xxl: 32,
-  xxxl: 48,
+  xl: 20,
+  xxl: 28,
+  xxxl: 40,
 };
 
 export const radius = {
   sm: 6,
   md: 12,
-  lg: 20,
+  lg: 18,
   pill: 999,
 };
 
+/**
+ * Compact type scale — sized for phones.
+ * Previous scale ran too large on 390-wide devices.
+ */
 export const typography = {
-  sm: 12,
-  base: 14,
-  lg: 16,
-  xl: 20,
-  xxl: 24,
-  display: 32,
+  xs: 10,
+  sm: 11,
+  base: 13,
+  lg: 15,
+  xl: 17,
+  xxl: 20,
+  display: 24,
 };
 
 export const shadow = {
   card: {
-    shadowColor: "#0A4D68",
+    shadowColor: "#0B2447",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
     elevation: 2,
   },
 };

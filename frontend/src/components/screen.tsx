@@ -172,8 +172,8 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.divider,
@@ -183,8 +183,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerIconBtn: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radius.md,
@@ -199,9 +199,9 @@ const styles = StyleSheet.create({
     color: colors.onSurface,
   },
   headerSubtitle: {
-    fontSize: typography.sm,
+    fontSize: typography.xs,
     color: colors.onSurfaceSecondary,
-    marginTop: 2,
+    marginTop: 1,
   },
   fab: {
     position: "absolute",

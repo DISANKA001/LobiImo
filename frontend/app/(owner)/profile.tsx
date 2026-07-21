@@ -1,3 +1,3 @@
-import ProfileScreen from "@/app/(client)/profile";
+import ProfileScreen from "@/app/(main)/profile";
 
 export default ProfileScreen;

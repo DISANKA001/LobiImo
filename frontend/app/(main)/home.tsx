@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Image,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -13,10 +14,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { api } from "@/src/api";
 import { useAuth } from "@/src/auth";
-import { AppHeader, Screen } from "@/src/components/screen";
 import { useToast } from "@/src/components/toast";
 import { EmptyState, PropertyCard } from "@/src/components/ui";
 import { colors, radius, spacing, typography } from "@/src/theme";
@@ -24,15 +25,25 @@ import { Property, TransactionType } from "@/src/types";
 
 type Filter = "tous" | TransactionType;
 
-export default function ClientHome() {
+const LOGO = require("@/assets/images/logo.png");
+
+/**
+ * PUBLIC home — browsing works without an account.
+ * The Lobilmo logo header opens an admin login after 5 rapid taps.
+ */
+export default function PublicHome() {
   const router = useRouter();
   const { user } = useAuth();
   const toast = useToast();
+
   const [items, setItems] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<Filter>("tous");
   const [search, setSearch] = useState("");
+
+  const tapCountRef = useRef(0);
+  const tapTimerRef = useRef<any>(null);
 
   const load = useCallback(async () => {
     try {
@@ -40,7 +51,8 @@ export default function ClientHome() {
       if (filter !== "tous") params.push(`type=${filter}`);
       if (search.trim()) params.push(`q=${encodeURIComponent(search.trim())}`);
       const qs = params.length ? `?${params.join("&")}` : "";
-      const data = await api.get<Property[]>(`/properties${qs}`);
+      const url = `/properties/public${qs}`;
+      const data = await api.get<Property[]>(url);
       setItems(data);
     } catch (e: any) {
       toast.error(e?.message || "Chargement impossible");
@@ -57,28 +69,67 @@ export default function ClientHome() {
     }, [load]),
   );
 
-  const chips: { key: Filter; label: string; icon: any }[] = useMemo(
+  const chips: { key: Filter; label: string }[] = useMemo(
     () => [
-      { key: "tous", label: "Tous", icon: "grid-outline" },
-      { key: "location", label: "Location", icon: "key-outline" },
-      { key: "vente", label: "Vente", icon: "home-outline" },
+      { key: "tous", label: "Tous" },
+      { key: "location", label: "Location" },
+      { key: "vente", label: "Vente" },
     ],
     [],
   );
 
+  const onLogoPress = () => {
+    tapCountRef.current += 1;
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+    tapTimerRef.current = setTimeout(() => {
+      tapCountRef.current = 0;
+    }, 1600);
+    if (tapCountRef.current >= 5) {
+      tapCountRef.current = 0;
+      router.push("/(auth)/admin");
+    }
+  };
+
   return (
-    <Screen
-      testID="client-home-screen"
-      header={
-        <AppHeader
-          title={`Bonjour ${user?.name?.split(" ")[0] || ""}`}
-          subtitle="Trouvez votre prochain chez-vous"
-        />
-      }
-    >
-      <View>
+    <SafeAreaView style={styles.safe} edges={["top"]} testID="public-home-screen">
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          testID="app-logo"
+          activeOpacity={0.9}
+          onPress={onLogoPress}
+          style={styles.logoRow}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Image source={LOGO} style={styles.logo} />
+          <View>
+            <Text style={styles.brandName}>Lobilmo</Text>
+            <Text style={styles.brandSub}>Immobilier • Kinshasa</Text>
+          </View>
+        </TouchableOpacity>
+        {user ? (
+          <TouchableOpacity
+            testID="home-profile-btn"
+            onPress={() => router.push("/(main)/profile")}
+            style={styles.iconBtn}
+          >
+            <Ionicons name="person-circle" size={26} color={colors.brandPrimary} />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            testID="home-login-btn"
+            onPress={() => router.push("/(auth)/login")}
+            style={styles.loginBtn}
+          >
+            <Text style={styles.loginBtnText}>Se connecter</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Search + Filters */}
+      <View style={styles.sticky}>
         <View style={styles.searchBar}>
-          <Ionicons name="search" size={18} color={colors.muted} />
+          <Ionicons name="search" size={16} color={colors.muted} />
           <TextInput
             testID="home-search-input"
             style={styles.searchInput}
@@ -96,7 +147,7 @@ export default function ClientHome() {
                 setTimeout(load, 0);
               }}
             >
-              <Ionicons name="close-circle" size={18} color={colors.muted} />
+              <Ionicons name="close-circle" size={16} color={colors.muted} />
             </TouchableOpacity>
           ) : null}
         </View>
@@ -115,11 +166,6 @@ export default function ClientHome() {
                 onPress={() => setFilter(c.key)}
                 style={[styles.chip, active && styles.chipActive]}
               >
-                <Ionicons
-                  name={c.icon}
-                  size={16}
-                  color={active ? "#fff" : colors.brandPrimary}
-                />
                 <Text
                   style={[styles.chipText, active && styles.chipTextActive]}
                 >
@@ -131,6 +177,7 @@ export default function ClientHome() {
         </ScrollView>
       </View>
 
+      {/* List */}
       {loading ? (
         <View style={{ paddingTop: 60, alignItems: "center" }}>
           <ActivityIndicator color={colors.brandPrimary} />
@@ -151,7 +198,7 @@ export default function ClientHome() {
               onPress={() => router.push(`/property/${item.id}`)}
             />
           )}
-          contentContainerStyle={{ paddingTop: spacing.md, paddingBottom: 40 }}
+          contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -165,47 +212,110 @@ export default function ClientHome() {
           }
         />
       )}
-    </Screen>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.surface },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
+    backgroundColor: colors.surface,
+  },
+  logoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  logo: {
+    width: 40,
+    height: 40,
+    resizeMode: "contain",
+    borderRadius: 8,
+  },
+  brandName: {
+    fontSize: typography.lg,
+    fontWeight: "800",
+    color: colors.brandPrimary,
+    letterSpacing: 0.2,
+  },
+  brandSub: {
+    fontSize: typography.xs,
+    color: colors.onSurfaceSecondary,
+    marginTop: -1,
+  },
+  loginBtn: {
+    paddingHorizontal: spacing.md,
+    height: 34,
+    borderRadius: radius.pill,
+    backgroundColor: colors.brandPrimary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loginBtnText: {
+    color: "#fff",
+    fontSize: typography.sm,
+    fontWeight: "700",
+  },
+  iconBtn: {
+    width: 34,
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sticky: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
+    paddingBottom: spacing.sm,
+  },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.surfaceSecondary,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
-    height: 44,
-    marginTop: spacing.sm,
+    height: 40,
     gap: spacing.sm,
   },
   searchInput: {
     flex: 1,
     fontSize: typography.base,
     color: colors.onSurface,
-    paddingVertical: 8,
+    paddingVertical: 6,
   },
   chipsRow: {
     gap: spacing.sm,
-    paddingVertical: spacing.md,
+    paddingTop: spacing.sm,
     paddingRight: spacing.md,
   },
   chip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
     paddingHorizontal: spacing.md,
-    height: 36,
+    height: 32,
     borderRadius: radius.pill,
     backgroundColor: colors.brandTertiary,
+    alignItems: "center",
+    justifyContent: "center",
     flexShrink: 0,
   },
   chipActive: { backgroundColor: colors.brandPrimary },
   chipText: {
     color: colors.brandPrimary,
-    fontWeight: "600",
-    fontSize: typography.base,
+    fontWeight: "700",
+    fontSize: typography.sm,
   },
   chipTextActive: { color: "#fff" },
+  listContent: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: 40,
+  },
 });

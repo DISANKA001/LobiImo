@@ -36,13 +36,17 @@ export default function PropertyDetail() {
   const [loading, setLoading] = useState(true);
   const [favorite, setFavorite] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showAuthGate, setShowAuthGate] = useState(false);
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
 
   const load = useCallback(async () => {
     try {
-      const p = await api.get<Property>(`/properties/${id}`);
+      // Use public endpoint when anonymous; authed endpoint otherwise.
+      const p = user
+        ? await api.get<Property>(`/properties/${id}`)
+        : await api.get<Property>(`/properties/public/${id}`);
       setProp(p);
       if (user?.role === "client") {
         try {
@@ -64,8 +68,17 @@ export default function PropertyDetail() {
     load();
   }, [load]);
 
+  const requireAuth = () => {
+    setShowAuthGate(true);
+  };
+
   const toggleFavorite = async () => {
-    if (!prop || user?.role !== "client") return;
+    if (!prop) return;
+    if (!user) return requireAuth();
+    if (user.role !== "client") {
+      toast.info("Seuls les clients peuvent enregistrer des favoris");
+      return;
+    }
     try {
       if (favorite) {
         await api.delete(`/favorites/${prop.id}`);
@@ -79,6 +92,15 @@ export default function PropertyDetail() {
     } catch (e: any) {
       toast.error(e?.message || "Action impossible");
     }
+  };
+
+  const onInterestPress = () => {
+    if (!user) return requireAuth();
+    if (user.role !== "client") {
+      toast.info("Seuls les clients peuvent exprimer un intérêt");
+      return;
+    }
+    setShowModal(true);
   };
 
   const submitInterest = async () => {
@@ -115,6 +137,7 @@ export default function PropertyDetail() {
       : formatUSD(prop.price);
 
   const photos = prop.photos?.length ? prop.photos : [null];
+  const canInteract = !user || user.role === "client";
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.surface }}>
@@ -130,9 +153,7 @@ export default function PropertyDetail() {
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={(e) => {
-              const idx = Math.round(
-                e.nativeEvent.contentOffset.x / SW,
-              );
+              const idx = Math.round(e.nativeEvent.contentOffset.x / SW);
               setPhotoIndex(idx);
             }}
             renderItem={({ item }) =>
@@ -156,23 +177,19 @@ export default function PropertyDetail() {
                 onPress={() => router.back()}
                 style={styles.circleBtn}
               >
-                <Ionicons name="chevron-back" size={22} color={colors.onSurface} />
+                <Ionicons name="chevron-back" size={20} color={colors.onSurface} />
               </TouchableOpacity>
-              {user?.role === "client" ? (
-                <TouchableOpacity
-                  testID="detail-fav-btn"
-                  onPress={toggleFavorite}
-                  style={styles.circleBtn}
-                >
-                  <Ionicons
-                    name={favorite ? "heart" : "heart-outline"}
-                    size={22}
-                    color={favorite ? colors.error : colors.onSurface}
-                  />
-                </TouchableOpacity>
-              ) : (
-                <View style={styles.circleBtn} />
-              )}
+              <TouchableOpacity
+                testID="detail-fav-btn"
+                onPress={toggleFavorite}
+                style={styles.circleBtn}
+              >
+                <Ionicons
+                  name={favorite ? "heart" : "heart-outline"}
+                  size={20}
+                  color={favorite ? colors.error : colors.onSurface}
+                />
+              </TouchableOpacity>
             </View>
           </SafeAreaView>
           {photos.length > 1 ? (
@@ -180,10 +197,7 @@ export default function PropertyDetail() {
               {photos.map((_, i) => (
                 <View
                   key={i}
-                  style={[
-                    styles.dot,
-                    i === photoIndex && styles.dotActive,
-                  ]}
+                  style={[styles.dot, i === photoIndex && styles.dotActive]}
                 />
               ))}
             </View>
@@ -196,23 +210,11 @@ export default function PropertyDetail() {
               label={prop.type === "location" ? "Location" : "Vente"}
               variant={prop.type === "location" ? "primary" : "secondary"}
             />
-            {prop.status !== "published" ? (
-              <Badge
-                label={prop.status}
-                variant={
-                  prop.status === "pending"
-                    ? "warning"
-                    : prop.status === "rejected"
-                      ? "error"
-                      : "muted"
-                }
-              />
-            ) : null}
           </View>
           <Text style={styles.price}>{priceLabel}</Text>
           <Text style={styles.title}>{prop.title}</Text>
           <View style={styles.locRow}>
-            <Ionicons name="location-outline" size={16} color={colors.muted} />
+            <Ionicons name="location-outline" size={14} color={colors.muted} />
             <Text style={styles.locText}>
               {prop.quartier}, {prop.commune}
             </Text>
@@ -237,7 +239,7 @@ export default function PropertyDetail() {
                   <View key={a} style={styles.amenityChip}>
                     <Ionicons
                       name="checkmark"
-                      size={14}
+                      size={12}
                       color={colors.brandPrimary}
                     />
                     <Text style={styles.amenityText}>{a}</Text>
@@ -248,25 +250,31 @@ export default function PropertyDetail() {
           ) : null}
 
           <View style={styles.notice}>
-            <Ionicons name="shield-checkmark" size={18} color={colors.brandPrimary} />
+            <Ionicons name="shield-checkmark" size={16} color={colors.brandPrimary} />
             <Text style={styles.noticeText}>
-              L'administrateur LobiImo vous mettra en relation avec le bailleur
+              L'administrateur Lobilmo vous met en relation avec le bailleur
               après validation de votre intérêt.
             </Text>
           </View>
         </View>
       </ScrollView>
 
-      {user?.role === "client" ? (
-        <View style={[styles.stickyBar, { paddingBottom: insets.bottom + spacing.md }]}>
+      {canInteract ? (
+        <View
+          style={[
+            styles.stickyBar,
+            { paddingBottom: insets.bottom + spacing.md },
+          ]}
+        >
           <PrimaryButton
             testID="detail-interest-btn"
             title="Je suis intéressé"
-            onPress={() => setShowModal(true)}
+            onPress={onInterestPress}
           />
         </View>
       ) : null}
 
+      {/* Interest confirmation modal */}
       <Modal
         visible={showModal}
         transparent
@@ -278,14 +286,14 @@ export default function PropertyDetail() {
             <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>Confirmer votre intérêt</Text>
             <Text style={styles.modalSubtitle}>
-              L'administrateur LobiImo sera notifié et vous contactera pour la
+              L'administrateur Lobilmo sera notifié et vous contactera pour la
               mise en relation.
             </Text>
             <TextInput
               testID="interest-message-input"
               value={message}
               onChangeText={setMessage}
-              placeholder="Message optionnel (visite préférée, questions...)"
+              placeholder="Message optionnel (visite préférée...)"
               placeholderTextColor={colors.muted}
               multiline
               style={styles.modalInput}
@@ -305,6 +313,57 @@ export default function PropertyDetail() {
           </View>
         </View>
       </Modal>
+
+      {/* Auth gate modal for anonymous interaction */}
+      <Modal
+        visible={showAuthGate}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowAuthGate(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHandle} />
+            <Ionicons
+              name="lock-closed"
+              size={28}
+              color={colors.brandPrimary}
+              style={{ alignSelf: "center", marginBottom: spacing.sm }}
+            />
+            <Text style={styles.modalTitle}>Compte requis</Text>
+            <Text style={styles.modalSubtitle}>
+              Créez un compte gratuit ou connectez-vous pour continuer.
+            </Text>
+            <View style={{ height: spacing.md }} />
+            <PrimaryButton
+              testID="gate-login-btn"
+              title="Se connecter"
+              onPress={() => {
+                setShowAuthGate(false);
+                router.push("/(auth)/login");
+              }}
+            />
+            <View style={{ height: spacing.sm }} />
+            <PrimaryButton
+              testID="gate-register-btn"
+              title="Créer un compte"
+              variant="outline"
+              onPress={() => {
+                setShowAuthGate(false);
+                router.push("/(auth)/register");
+              }}
+            />
+            <TouchableOpacity
+              style={{ marginTop: spacing.md, alignItems: "center" }}
+              onPress={() => setShowAuthGate(false)}
+            >
+              <Text style={{ color: colors.onSurfaceSecondary }}>
+                Continuer sans compte
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -320,7 +379,7 @@ function Spec({
 }) {
   return (
     <View style={styles.specItem}>
-      <Ionicons name={icon} size={20} color={colors.brandPrimary} />
+      <Ionicons name={icon} size={18} color={colors.brandPrimary} />
       <Text style={styles.specValue}>{value}</Text>
       <Text style={styles.specLabel}>{label}</Text>
     </View>
@@ -328,8 +387,8 @@ function Spec({
 }
 
 const styles = StyleSheet.create({
-  heroWrap: { width: SW, height: 340 },
-  heroImage: { width: SW, height: 340, resizeMode: "cover" },
+  heroWrap: { width: SW, height: 300 },
+  heroImage: { width: SW, height: 300, resizeMode: "cover" },
   heroPlaceholder: {
     backgroundColor: colors.brandPrimary,
     alignItems: "center",
@@ -340,14 +399,9 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 120,
+    height: 110,
   },
-  heroChrome: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-  },
+  heroChrome: { position: "absolute", top: 0, left: 0, right: 0 },
   heroChromeRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -355,16 +409,16 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   circleBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.92)",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.94)",
     alignItems: "center",
     justifyContent: "center",
   },
   dots: {
     position: "absolute",
-    bottom: 12,
+    bottom: 10,
     alignSelf: "center",
     flexDirection: "row",
     gap: 5,
@@ -375,39 +429,38 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: "rgba(255,255,255,0.5)",
   },
-  dotActive: { backgroundColor: "#fff", width: 18 },
+  dotActive: { backgroundColor: "#fff", width: 16 },
   body: {
-    padding: spacing.xl,
-    marginTop: -20,
+    padding: spacing.lg,
+    marginTop: -16,
     borderTopLeftRadius: radius.lg,
     borderTopRightRadius: radius.lg,
     backgroundColor: colors.surface,
   },
   price: {
-    fontSize: typography.display,
+    fontSize: typography.xxl,
     fontWeight: "800",
     color: colors.brandPrimary,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   title: {
-    fontSize: typography.xl,
+    fontSize: typography.lg,
     fontWeight: "700",
     color: colors.onSurface,
-    marginTop: spacing.xs,
+    marginTop: 2,
   },
   locRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    marginTop: spacing.sm,
+    gap: 4,
+    marginTop: spacing.xs,
   },
   locText: {
     color: colors.onSurfaceSecondary,
-    fontSize: typography.base,
+    fontSize: typography.sm,
   },
   specsGrid: {
     flexDirection: "row",
-    justifyContent: "space-between",
     gap: spacing.sm,
     marginTop: spacing.lg,
   },
@@ -419,46 +472,48 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   specValue: {
-    fontSize: typography.xl,
-    fontWeight: "700",
-    color: colors.onSurface,
-    marginTop: spacing.xs,
-  },
-  specLabel: {
-    fontSize: typography.sm,
-    color: colors.onSurfaceSecondary,
-    marginTop: 2,
-  },
-  section: { marginTop: spacing.xl },
-  sectionTitle: {
     fontSize: typography.lg,
     fontWeight: "700",
     color: colors.onSurface,
-    marginBottom: spacing.sm,
+    marginTop: 2,
+  },
+  specLabel: {
+    fontSize: typography.xs,
+    color: colors.onSurfaceSecondary,
+    marginTop: 1,
+  },
+  section: { marginTop: spacing.lg },
+  sectionTitle: {
+    fontSize: typography.base,
+    fontWeight: "700",
+    color: colors.onSurface,
+    marginBottom: spacing.xs,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   description: {
     fontSize: typography.base,
     color: colors.onSurfaceSecondary,
-    lineHeight: 22,
+    lineHeight: 20,
   },
   amenityRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   amenityChip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    gap: 3,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: 5,
     backgroundColor: colors.brandTertiary,
     borderRadius: radius.pill,
   },
   amenityText: {
     color: colors.brandPrimary,
-    fontWeight: "600",
-    fontSize: typography.sm,
+    fontWeight: "700",
+    fontSize: typography.xs,
   },
   notice: {
     flexDirection: "row",
@@ -466,14 +521,14 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     backgroundColor: colors.brandTertiary,
     borderRadius: radius.md,
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
     alignItems: "flex-start",
   },
   noticeText: {
     flex: 1,
     fontSize: typography.sm,
     color: colors.brandPrimary,
-    lineHeight: 20,
+    lineHeight: 18,
   },
   stickyBar: {
     position: "absolute",
@@ -499,7 +554,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   modalHandle: {
-    width: 40,
+    width: 36,
     height: 4,
     borderRadius: 2,
     backgroundColor: colors.borderStrong,
@@ -507,24 +562,26 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   modalTitle: {
-    fontSize: typography.xl,
+    fontSize: typography.lg,
     fontWeight: "700",
     color: colors.onSurface,
+    textAlign: "center",
   },
   modalSubtitle: {
     color: colors.onSurfaceSecondary,
     marginTop: 4,
-    fontSize: typography.base,
-    lineHeight: 20,
+    fontSize: typography.sm,
+    lineHeight: 18,
+    textAlign: "center",
   },
   modalInput: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
     padding: spacing.md,
-    minHeight: 96,
+    minHeight: 84,
     textAlignVertical: "top",
-    marginVertical: spacing.lg,
+    marginVertical: spacing.md,
     color: colors.onSurface,
     fontSize: typography.base,
   },

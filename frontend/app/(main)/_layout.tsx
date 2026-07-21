@@ -4,9 +4,13 @@ import React from "react";
 import { ActivityIndicator, View } from "react-native";
 
 import { useAuth } from "@/src/auth";
-import { colors } from "@/src/theme";
+import { colors, typography } from "@/src/theme";
 
-export default function ClientTabsLayout() {
+/**
+ * PUBLIC browseable tabs — anonymous users can navigate.
+ * Owners / Admins are redirected to their dedicated portals.
+ */
+export default function MainTabsLayout() {
   const { user, loading } = useAuth();
   if (loading) {
     return (
@@ -15,8 +19,8 @@ export default function ClientTabsLayout() {
       </View>
     );
   }
-  if (!user) return <Redirect href="/(auth)/login" />;
-  if (user.role !== "client") return <Redirect href="/" />;
+  if (user?.role === "owner") return <Redirect href="/(owner)/dashboard" />;
+  if (user?.role === "admin") return <Redirect href="/(admin)/dashboard" />;
 
   return (
     <Tabs
@@ -27,11 +31,11 @@ export default function ClientTabsLayout() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.divider,
-          height: 68,
+          height: 62,
           paddingTop: 6,
-          paddingBottom: 10,
+          paddingBottom: 8,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
+        tabBarLabelStyle: { fontSize: typography.xs, fontWeight: "600" },
       }}
     >
       <Tabs.Screen
@@ -39,7 +43,7 @@ export default function ClientTabsLayout() {
         options={{
           title: "Accueil",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+            <Ionicons name="home-outline" size={size - 2} color={color} />
           ),
         }}
       />
@@ -48,25 +52,25 @@ export default function ClientTabsLayout() {
         options={{
           title: "Favoris",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart-outline" size={size} color={color} />
+            <Ionicons name="heart-outline" size={size - 2} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="interests"
         options={{
-          title: "Mes intérêts",
+          title: "Intérêts",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="mail-outline" size={size} color={color} />
+            <Ionicons name="mail-outline" size={size - 2} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profil",
+          title: "Compte",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+            <Ionicons name="person-outline" size={size - 2} color={color} />
           ),
         }}
       />

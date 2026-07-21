@@ -104,13 +104,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   title: {
-    fontSize: typography.display,
+    fontSize: typography.xxl,
     fontWeight: "800",
     color: colors.onSurface,
   },
   subtitle: {
-    fontSize: typography.lg,
+    fontSize: typography.base,
     color: colors.onSurfaceSecondary,
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
   },
 });
