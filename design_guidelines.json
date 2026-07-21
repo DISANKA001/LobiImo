@@ -1,0 +1,188 @@
+{
+  "app_name": "LobiImo",
+  "personality": "1 iOS-Native Clean",
+  "personality_one_liner": "A trustworthy, clean, and highly functional real estate marketplace bridging clients and owners with absolute clarity.",
+  "color": {
+    "surface": "#FFFFFF",
+    "onSurface": "#111827",
+    "surfaceSecondary": "#F4F7F9",
+    "onSurfaceSecondary": "#374151",
+    "surfaceTertiary": "#E8EEF2",
+    "onSurfaceTertiary": "#4B5563",
+    "surfaceInverse": "#111827",
+    "onSurfaceInverse": "#FFFFFF",
+    "brand": "#0A4D68",
+    "brandPrimary": "#0A4D68",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#088395",
+    "onBrandSecondary": "#FFFFFF",
+    "brandTertiary": "#E0F2FE",
+    "onBrandTertiary": "#0A4D68",
+    "success": "#10B981",
+    "onSuccess": "#FFFFFF",
+    "warning": "#F59E0B",
+    "onWarning": "#FFFFFF",
+    "error": "#EF4444",
+    "onError": "#FFFFFF",
+    "info": "#3B82F6",
+    "onInfo": "#FFFFFF",
+    "border": "#E5E7EB",
+    "borderStrong": "#D1D5DB",
+    "divider": "#F3F4F6"
+  },
+  "typography": {
+    "displayFontFamily": "Plus Jakarta Sans",
+    "textFontFamily": "Plus Jakarta Sans",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous padding around content, comfortable vertical rhythms. Cards never touch screen edges. Sticky CTAs always have safe-area clearance.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "1",
+  "navigation": "bottom_tabs",
+  "icon_set": "Ionicons",
+  "glassmorphism": {
+    "enabled": "true",
+    "do's": [
+      "Bottom tab bar when content scrolls behind it",
+      "Sticky headers over scrolling content",
+      "Floating Action Buttons",
+      "Bottom-sheet headers"
+    ],
+    "dont's": [
+      "Form inputs",
+      "List rows",
+      "Body text regions"
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Auth / Onboarding",
+      "purpose": "Welcome users and allow them to login/register, selecting their role (Client vs Bailleur).",
+      "states": {
+        "loading": "Centered brand spinner.",
+        "empty": "N/A",
+        "error": "Standard alert or inline red text for invalid credentials."
+      },
+      "layout": "Hero image of Kinshasa landscape at the top with gradient scrim. Logo placed centrally. Segmented control (pill style) to toggle between 'Client' and 'Bailleur'. Standard clean input fields for email/password. 'Secret' admin access via 5 taps on the logo."
+    },
+    {
+      "name": "Client Home Feed",
+      "purpose": "Browse available real estate listings for rent (Location) and sale (Vente).",
+      "states": {
+        "loading": "Skeleton cards mimicking property listings.",
+        "empty": "Illustration of an empty house with text 'Aucune propriété disponible' and a refresh button.",
+        "error": "Error message with 'Réessayer' button."
+      },
+      "layout": "Header with search bar and filter icon. Scrollable list of property cards. Each card fills width (minus padding), featuring a 4:3 image, price in bold, Location/Vente badge (using brandSecondary for Vente, brandPrimary for Location), title, neighborhood, and a row of specs (chambres, superficie) separated by subtle dividers."
+    },
+    {
+      "name": "Search & Filters (Bottom Sheet)",
+      "purpose": "Allow users to refine their property search.",
+      "states": {
+        "loading": "N/A",
+        "empty": "N/A",
+        "error": "N/A"
+      },
+      "layout": "Bottom-sheet modal covering 75% of the screen. Glass header with drag handle. Sections for 'Type' (Location/Vente chips), 'Prix' (range slider), 'Quartier' (dropdown/chips), 'Chambres' (segmented control). Sticky 'Appliquer' button at the bottom."
+    },
+    {
+      "name": "Property Details",
+      "purpose": "Showcase a single property and capture lead interest.",
+      "states": {
+        "loading": "Skeleton text and image box.",
+        "empty": "N/A",
+        "error": "Error fetching details with retry button."
+      },
+      "layout": "Full-bleed hero image carousel at top. Content area overlaps image slightly with top-rounded corners. High-contrast price, address, and key stats (beds, baths, sqft). Amenities listed as chips in brandTertiary. Sticky CTA at the bottom: 'Je suis intéressé' in brandPrimary. This button notifies the admin without direct messaging."
+    },
+    {
+      "name": "Favorites",
+      "purpose": "Access saved properties.",
+      "states": {
+        "loading": "Skeleton list.",
+        "empty": "Heart icon illustration with 'Vous n'avez pas encore de favoris'.",
+        "error": "Retry button."
+      },
+      "layout": "Simple 1-column list of saved property cards. Similar to Home Feed but optimized for quick scanning."
+    },
+    {
+      "name": "Owner (Bailleur) Portal",
+      "purpose": "Dashboard for property owners to add and manage their listings.",
+      "states": {
+        "loading": "Skeleton dashboard stats.",
+        "empty": "Illustration with 'Ajoutez votre première propriété' CTA.",
+        "error": "Retry button."
+      },
+      "layout": "Top metric cards (Active Listings, Pending). List of 'Mes Propriétés' with status badges (En ligne, En attente). Floating Action Button (FAB) to 'Ajouter une propriété' (+ icon). Multi-step form for adding a listing."
+    },
+    {
+      "name": "Admin Dashboard (Hidden)",
+      "purpose": "Platform management: users, listings approval, interest tracking, and commission calculation.",
+      "states": {
+        "loading": "Skeleton dashboard.",
+        "empty": "N/A",
+        "error": "N/A"
+      },
+      "layout": "Data-heavy utility layout. Tabs for 'Propriétés', 'Utilisateurs', 'Intérêts' (leads to connect), and 'Finances' (payments, tracking 1-month rent for locations, 10% for sales). Actionable list rows to approve properties or connect clients with bailleurs."
+    }
+  ],
+  "images": {
+    "auth_hero": {
+      "url": "https://images.pexels.com/photos/30188151/pexels-photo-30188151.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Kinshasa aerial view landscape"
+    },
+    "property_exterior_1": {
+      "url": "https://images.pexels.com/photos/35339499/pexels-photo-35339499.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Modern apartment building exterior"
+    },
+    "property_exterior_2": {
+      "url": "https://images.pexels.com/photos/5674684/pexels-photo-5674684.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Contemporary urban architecture"
+    },
+    "property_interior_1": {
+      "url": "https://images.unsplash.com/photo-1724582586529-62622e50c0b3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTN8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBsaXZpbmclMjByb29tJTIwaW50ZXJpb3IlMjBkZXNpZ24lMjBicmlnaHR8ZW58MHx8fHwxNzg0NjYzNjEyfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Modern bright living room interior"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Design Language: Maintain a strict 'iOS-Native Clean' approach. Use the requested White and Blue palette (brandPrimary: #0A4D68) consistently to project trust and professionalism for real estate.",
+    "Property Details Screen: Implement a full-bleed hero image carousel. Ensure the 'Je suis intéressé' button is sticky at the bottom with safe-area clearance, triggering an admin notification.",
+    "Image Treatment: All text layered on property images (e.g., in carousels or cards) MUST have a gradient scrim underneath (transparent to 70%+ surfaceInverse) for readability.",
+    "Navigation & Flow: Implement 3 distinct portals. Use a segmented control on the Auth screen to toggle between Client and Bailleur. Implement a hidden gesture (5 rapid taps on the app logo) on the Auth/Home screen to access the Admin portal.",
+    "Admin Business Logic: The admin dashboard must include tracking for the specific commission structures: 1 month of rent equivalent for rentals, and 10% of the sale price for sales.",
+    "Filtering: Use a bottom-sheet modal for search filters (Price, Type, Area) to keep context of the map/list in the background.",
+    "All app strings and UI elements MUST be in French, tailored to the Kinshasa market context."
+  ]
+}
