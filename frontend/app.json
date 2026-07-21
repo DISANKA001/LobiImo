@@ -1,24 +1,28 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "LobiImo",
+    "slug": "lobiimo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "lobiimo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.emergent.rentalpropertyhub.d8np2g"
+      "bundleIdentifier": "com.emergent.rentalpropertyhub.d8np2g",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Ajouter des photos à vos annonces immobilières"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#0A4D68"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.emergent.rentalpropertyhub.d8np2g"
+      "package": "com.emergent.rentalpropertyhub.d8np2g",
+      "permissions": ["READ_EXTERNAL_STORAGE", "READ_MEDIA_IMAGES"]
     },
     "web": {
       "bundler": "metro",
@@ -27,13 +31,14 @@
     },
     "plugins": [
       "expo-router",
+      "expo-image-picker",
       [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-image.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000000"
+          "backgroundColor": "#0A4D68"
         }
       ]
     ],
