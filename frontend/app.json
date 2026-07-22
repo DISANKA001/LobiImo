@@ -12,17 +12,23 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.emergent.rentalpropertyhub.d8np2g",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Ajouter des photos à vos annonces immobilières"
+        "NSPhotoLibraryUsageDescription": "Ajouter des photos à vos annonces immobilières",
+        "NSLocationWhenInUseUsageDescription": "Situer votre bien sur la carte de Kinshasa"
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#0A4D68"
+        "backgroundColor": "#0B2447"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.emergent.rentalpropertyhub.d8np2g",
-      "permissions": ["READ_EXTERNAL_STORAGE", "READ_MEDIA_IMAGES"]
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -33,12 +39,18 @@
       "expo-router",
       "expo-image-picker",
       [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Situer votre bien sur la carte de Kinshasa"
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-image.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#0A4D68"
+          "backgroundColor": "#0B2447"
         }
       ]
     ],

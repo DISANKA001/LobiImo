@@ -21,6 +21,7 @@ import { api } from "@/src/api";
 import { useAuth } from "@/src/auth";
 import { useToast } from "@/src/components/toast";
 import { Badge, PrimaryButton } from "@/src/components/ui";
+import { PropertyMap } from "@/src/components/property-map";
 import { colors, radius, spacing, typography } from "@/src/theme";
 import { Property, formatUSD } from "@/src/types";
 
@@ -246,6 +247,17 @@ export default function PropertyDetail() {
                   </View>
                 ))}
               </View>
+            </View>
+          ) : null}
+
+          {prop.lat != null && prop.lng != null ? (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Localisation</Text>
+              <PropertyMap lat={prop.lat} lng={prop.lng} title={prop.title} />
+              <Text style={styles.mapCaption}>
+                {prop.address ? `${prop.address} • ` : ""}
+                {prop.quartier}, {prop.commune}
+              </Text>
             </View>
           ) : null}
 
@@ -514,6 +526,12 @@ const styles = StyleSheet.create({
     color: colors.brandPrimary,
     fontWeight: "700",
     fontSize: typography.xs,
+  },
+  mapCaption: {
+    fontSize: typography.sm,
+    color: colors.onSurfaceSecondary,
+    marginTop: spacing.xs,
+    textAlign: "center",
   },
   notice: {
     flexDirection: "row",

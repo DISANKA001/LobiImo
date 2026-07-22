@@ -18,6 +18,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { api } from "@/src/api";
 import { useAuth } from "@/src/auth";
+import {
+  EMPTY_FILTERS,
+  FiltersButton,
+  FiltersSheet,
+  PropertyFilters,
+  activeFilterCount,
+} from "@/src/components/filters-sheet";
 import { useToast } from "@/src/components/toast";
 import { EmptyState, PropertyCard } from "@/src/components/ui";
 import { colors, radius, spacing, typography } from "@/src/theme";
@@ -41,6 +48,8 @@ export default function PublicHome() {
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<Filter>("tous");
   const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState<PropertyFilters>(EMPTY_FILTERS);
+  const [showFilters, setShowFilters] = useState(false);
 
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<any>(null);
@@ -50,6 +59,14 @@ export default function PublicHome() {
       const params: string[] = [];
       if (filter !== "tous") params.push(`type=${filter}`);
       if (search.trim()) params.push(`q=${encodeURIComponent(search.trim())}`);
+      if (filters.minPrice) params.push(`min_price=${filters.minPrice}`);
+      if (filters.maxPrice) params.push(`max_price=${filters.maxPrice}`);
+      if (filters.minSurface)
+        params.push(`min_surface=${filters.minSurface}`);
+      if (filters.bedrooms != null)
+        params.push(`bedrooms=${filters.bedrooms}`);
+      if (filters.commune)
+        params.push(`commune=${encodeURIComponent(filters.commune)}`);
       const qs = params.length ? `?${params.join("&")}` : "";
       const url = `/properties/public${qs}`;
       const data = await api.get<Property[]>(url);
@@ -60,7 +77,7 @@ export default function PublicHome() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [filter, search, toast]);
+  }, [filter, search, filters, toast]);
 
   useFocusEffect(
     useCallback(() => {
@@ -174,6 +191,10 @@ export default function PublicHome() {
               </Pressable>
             );
           })}
+          <FiltersButton
+            count={activeFilterCount(filters)}
+            onPress={() => setShowFilters(true)}
+          />
         </ScrollView>
       </View>
 
@@ -212,6 +233,16 @@ export default function PublicHome() {
           }
         />
       )}
+
+      <FiltersSheet
+        visible={showFilters}
+        initial={filters}
+        onClose={() => setShowFilters(false)}
+        onApply={(f) => {
+          setFilters(f);
+          setLoading(true);
+        }}
+      />
     </SafeAreaView>
   );
 }

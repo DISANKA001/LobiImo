@@ -17,6 +17,8 @@ export type Property = {
   surface: number;
   amenities: string[];
   photos: string[]; // base64 data URIs OR http URLs
+  lat?: number | null;
+  lng?: number | null;
   owner_id: string;
   owner_name: string;
   owner_phone?: string;

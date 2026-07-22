@@ -169,6 +169,8 @@ class PropertyIn(BaseModel):
     surface: float = 0  # m2
     amenities: List[str] = []
     photos: List[str] = []  # base64 strings
+    lat: Optional[float] = None
+    lng: Optional[float] = None
 
 
 class PropertyOut(PropertyIn):
@@ -371,6 +373,7 @@ async def list_properties_public(
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
     bedrooms: Optional[int] = None,
+    min_surface: Optional[float] = None,
     q: Optional[str] = None,
 ):
     """Anonymous-safe browse — only published properties."""
@@ -381,6 +384,8 @@ async def list_properties_public(
         query["commune"] = {"$regex": f"^{commune}$", "$options": "i"}
     if bedrooms is not None:
         query["bedrooms"] = {"$gte": bedrooms}
+    if min_surface is not None:
+        query["surface"] = {"$gte": min_surface}
     if min_price is not None or max_price is not None:
         price_q: dict = {}
         if min_price is not None:
@@ -417,6 +422,7 @@ async def list_properties(
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
     bedrooms: Optional[int] = None,
+    min_surface: Optional[float] = None,
     q: Optional[str] = None,
     status_filter: Optional[str] = Query(None, alias="status"),
     user: dict = Depends(get_current_user),
@@ -438,6 +444,8 @@ async def list_properties(
         query["commune"] = {"$regex": f"^{commune}$", "$options": "i"}
     if bedrooms is not None:
         query["bedrooms"] = {"$gte": bedrooms}
+    if min_surface is not None:
+        query["surface"] = {"$gte": min_surface}
     if min_price is not None or max_price is not None:
         price_q: dict = {}
         if min_price is not None:

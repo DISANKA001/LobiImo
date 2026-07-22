@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -15,6 +16,7 @@ import {
 import { api } from "@/src/api";
 import { AppHeader, Screen } from "@/src/components/screen";
 import { useToast } from "@/src/components/toast";
+import { PropertyMap, KINSHASA_CENTER } from "@/src/components/property-map";
 import { Input, PrimaryButton } from "@/src/components/ui";
 import { colors, radius, spacing, typography } from "@/src/theme";
 import { COMMUNES_KINSHASA, TransactionType } from "@/src/types";
@@ -49,6 +51,42 @@ export default function AddProperty() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [showCommune, setShowCommune] = useState(false);
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const [locating, setLocating] = useState(false);
+
+  const useCurrentLocation = async () => {
+    setLocating(true);
+    try {
+      const perm = await Location.requestForegroundPermissionsAsync();
+      if (!perm.granted) {
+        toast.error(
+          "Autorisation refusée. Ouvrez les paramètres pour l'accorder.",
+        );
+        setLocating(false);
+        return;
+      }
+      const pos = await Location.getCurrentPositionAsync({});
+      setLat(pos.coords.latitude);
+      setLng(pos.coords.longitude);
+      toast.success("Position enregistrée");
+    } catch (e: any) {
+      toast.error(e?.message || "Impossible d'obtenir la position");
+    } finally {
+      setLocating(false);
+    }
+  };
+
+  const useKinshasaCenter = () => {
+    setLat(KINSHASA_CENTER.latitude);
+    setLng(KINSHASA_CENTER.longitude);
+    toast.info("Position réglée au centre de Kinshasa");
+  };
+
+  const clearLocation = () => {
+    setLat(null);
+    setLng(null);
+  };
 
   const pickPhoto = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -107,6 +145,8 @@ export default function AddProperty() {
         surface: parseFloat(surface || "0"),
         amenities,
         photos,
+        lat,
+        lng,
       });
       toast.success("Annonce envoyée pour validation admin");
       router.replace("/(owner)/my-properties");
@@ -301,6 +341,59 @@ export default function AddProperty() {
           })}
         </View>
 
+        <Text style={styles.section}>Localisation sur carte</Text>
+        {lat != null && lng != null ? (
+          <>
+            <PropertyMap lat={lat} lng={lng} title={title || "Ma propriété"} height={160} />
+            <Text style={styles.locHint}>
+              Coordonnées : {lat.toFixed(5)}, {lng.toFixed(5)}
+            </Text>
+          </>
+        ) : (
+          <View style={styles.locEmpty}>
+            <Ionicons name="location-outline" size={22} color={colors.brandPrimary} />
+            <Text style={styles.locEmptyText}>
+              Ajoutez une position pour afficher la carte du bien.
+            </Text>
+          </View>
+        )}
+        <View style={styles.locActions}>
+          <TouchableOpacity
+            testID="use-current-location-btn"
+            onPress={useCurrentLocation}
+            disabled={locating}
+            style={[styles.locBtn, { backgroundColor: colors.brandPrimary }]}
+          >
+            <Ionicons name="navigate" size={13} color="#fff" />
+            <Text style={styles.locBtnText}>
+              {locating ? "Localisation..." : "Ma position"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            testID="use-kinshasa-center-btn"
+            onPress={useKinshasaCenter}
+            style={[styles.locBtn, styles.locBtnAlt]}
+          >
+            <Ionicons name="business" size={13} color={colors.brandPrimary} />
+            <Text style={[styles.locBtnText, { color: colors.brandPrimary }]}>
+              Centre Kinshasa
+            </Text>
+          </TouchableOpacity>
+          {lat != null ? (
+            <TouchableOpacity
+              testID="clear-location-btn"
+              onPress={clearLocation}
+              style={[styles.locBtn, styles.locBtnAlt]}
+            >
+              <Ionicons name="close" size={13} color={colors.error} />
+              <Text style={[styles.locBtnText, { color: colors.error }]}>
+                Retirer
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
+
         <Text style={styles.section}>Photos ({photos.length})</Text>
         <View style={styles.photoRow}>
           {photos.map((uri, i) => (
@@ -463,5 +556,50 @@ const styles = StyleSheet.create({
     color: colors.brandPrimary,
     fontSize: typography.sm,
     fontWeight: "600",
+  },
+  locEmpty: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: colors.brandPrimary,
+    backgroundColor: colors.brandTertiary,
+  },
+  locEmptyText: {
+    flex: 1,
+    color: colors.brandPrimary,
+    fontSize: typography.sm,
+    lineHeight: 18,
+  },
+  locHint: {
+    color: colors.onSurfaceSecondary,
+    fontSize: typography.xs,
+    marginTop: 4,
+  },
+  locActions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  locBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: spacing.md - 2,
+    paddingVertical: 8,
+    borderRadius: radius.pill,
+  },
+  locBtnAlt: {
+    backgroundColor: colors.brandTertiary,
+  },
+  locBtnText: {
+    color: "#fff",
+    fontSize: typography.sm,
+    fontWeight: "700",
   },
 });
