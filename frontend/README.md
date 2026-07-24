@@ -41,7 +41,15 @@ To learn more about developing your project with Expo, look at the following res
 
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
 - [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## GitHub Pages deployment
 
+This frontend can be published on GitHub Pages as a static site.
+
+- `yarn build:web` builds the static output into `web-build`
+- `frontend/web-build` is the directory deployed by GitHub Actions
+- The published URL will be `https://<your-github-username>.github.io/<repo-name>`
+
+> Important: the backend must remain hosted separately, and `EXPO_PUBLIC_BACKEND_URL` must point to the backend API.
 ## Join the community
 
 Join our community of developers creating universal apps.
