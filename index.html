@@ -32,6 +32,21 @@
     </noscript>
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
-  <script src="/LobiImo/_expo/static/js/web/entry-9103c891d307e91083ab84c2286d6b49.js" defer></script>
+  
+  <script>
+    var redirect = sessionStorage.redirect;
+    if (redirect) {
+      delete sessionStorage.redirect;
+      var basePath = "/LobiImo";
+      var pathToRestore = basePath + "/" + redirect.replace(/^\//, "");
+      if (location.pathname !== pathToRestore) {
+        history.replaceState(null, null, pathToRestore);
+      }
+    }
+    if (typeof window !== "undefined" && !window.__EXPO_ROUTER_BASEPATH__) {
+      window.__EXPO_ROUTER_BASEPATH__ = "/LobiImo";
+    }
+  </script>
+<script src="/LobiImo/_expo/static/js/web/entry-9103c891d307e91083ab84c2286d6b49.js"</script>
 </body>
 </html>

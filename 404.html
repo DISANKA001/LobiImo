@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>LobiImo - Redirecting</title>
+  <script>
+    // Capture the path that wasn't found and redirect to index.html
+    // This allows Expo Router to handle the route correctly
+    const path = location.pathname;
+    const basePath = "/LobiImo";
+    // Remove the basePath prefix to get the actual path
+    const actualPath = path.startsWith(basePath + "/") 
+      ? path.slice(basePath.length + 1) // Remove 'basePath/'
+      : path;
+    
+    // Store the path in sessionStorage
+    sessionStorage.redirect = actualPath;
+    
+    // Redirect to index.html at the root
+    location.href = basePath + "/";
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html>
