@@ -76,11 +76,20 @@ const routerPatch = `
   </script>
 `;
 
-// Insert the patch right before the entry point script
+// Insert the patch before the closing body tag
 html = html.replace(
-  /<script src="([^"]*entry[^"]*)"[^>]*>/,
-  routerPatch + '<script src="$1"'
+  /<\/body>/i,
+  routerPatch + '</body>'
 );
+
+// Add base href for GitHub Pages subdirectory support
+if (!html.includes('<base href="' + basePath + '/">')) {
+  html = html.replace(
+    /<\/head>/i,
+    `  <base href="${basePath}/">
+</head>`
+  );
+}
 
 fs.writeFileSync(indexPath, html, "utf-8");
 console.log(`✅ Fixed asset paths for GitHub Pages at ${basePath}`);
